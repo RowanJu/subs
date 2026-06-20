@@ -1,5 +1,9 @@
 # subs
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![install: npx skills add](https://img.shields.io/badge/install-npx%20skills%20add-black)](https://github.com/vercel-labs/skills)
+[![agents: Claude Code · Cursor · 68+](https://img.shields.io/badge/agents-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%2068%2B-blue)](https://github.com/vercel-labs/skills)
+
 A portable **agent skill** that analyzes your SaaS subscription spending — **spend
 summary**, **waste detection** (duplicates, overlaps, price hikes, forgotten
 subs), **renewal tracking**, and **savings recommendations** — output as a
