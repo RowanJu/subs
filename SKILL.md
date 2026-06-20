@@ -33,14 +33,14 @@ worth cancelling). Never overwrite the ledger wholesale; merge into it.
   notes: "was 4.00 since signup"
 ```
 
-## Prerequisite: the Gmail connector
+## Prerequisite: a Gmail connector
 
-This skill reads subscription receipts from Gmail via Claude Code's **Gmail
-connector**. Before step 1, confirm its tools are available (a `search_threads` /
-`get_thread` pair — find them with `ToolSearch` for `gmail search_threads`). If
-the connector is **not** available, stop and tell the user to enable it
-(Connectors → Gmail → connect/authorize), then re-run `/subs`. Details and queries
-in [email-receipts.md](references/email-receipts.md).
+This skill reads subscription receipts from Gmail via a **Gmail connector/MCP**
+available to your coding agent (e.g. Claude Code's Gmail connector). Before step 1,
+confirm your agent has Gmail search/read tools (a `search_threads` / `get_thread`
+pair, or equivalent). If no Gmail integration is available, stop and tell the user
+to enable one, then re-run the skill. Details and queries in
+[email-receipts.md](references/email-receipts.md).
 
 ## Process
 
@@ -73,10 +73,11 @@ run (or the connector-missing message was shown and the run stopped).
 
 ### 2. Detect recurring charges
 Run the deterministic detector over every statement CSV (including the
-Plaid-derived one) — do **not** eyeball rows:
+Plaid-derived one) — do **not** eyeball rows. `<skill-dir>` is this skill's own
+directory (in Claude Code: `~/.claude/skills/subs/`):
 
 ```
-python3 ~/.claude/skills/subs/scripts/detect_recurring.py data/statements/*.csv
+python3 <skill-dir>/scripts/detect_recurring.py data/statements/*.csv
 ```
 
 The detector emits JSON candidates (merchant, amount, currency, cadence,

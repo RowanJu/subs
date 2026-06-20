@@ -38,9 +38,10 @@ Convert the CLI JSON to the detector's CSV, then detect. Plaid amounts are
   jq -r '.items[].transactions[] | [.date, (.name // .merchant_name // ""), (-.amount), (.iso_currency_code // "USD")] | @csv' \
      data/plaid/transactions.json; } > data/statements/plaid-transactions.csv
 
-python3 ~/.claude/skills/subs/scripts/detect_recurring.py data/statements/*.csv
+python3 <skill-dir>/scripts/detect_recurring.py data/statements/*.csv
 ```
-`jq` ships on most macs; if missing, `brew install jq`. The CLI JSON shape is
+`jq` ships on most macs; if missing, `brew install jq`. `<skill-dir>` is this
+skill's own directory (in Claude Code: `~/.claude/skills/subs/`). The CLI JSON shape is
 `{ items: [ { transactions: [ {date, name, merchant_name, amount,
 iso_currency_code} ] } ] }`.
 
