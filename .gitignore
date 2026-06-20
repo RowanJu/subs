@@ -1,24 +1,10 @@
 # ============================================================
-# PERSONAL FINANCIAL DATA — never commit. Keep this repo shareable.
-# (gitignore has no inline comments — keep patterns on their own lines)
+# Personal financial data & runtime output — never commit.
+# This repo IS the skill; your data stays local only.
 # ============================================================
-
-# the ledger: real vendors, amounts, personal notes
-subscriptions.yaml
-
-# generated reports (full financial picture, names)
+/data/
 /reports/
-
-# raw transaction JSON pulled from the Plaid CLI
-data/plaid/
-
-# raw bank transactions
-data/statements/*.csv
-
-# email receipts
-data/receipts/*.eml
-data/receipts/*.txt
-data/receipts/*.html
+subscriptions.yaml
 
 # secrets
 .env
@@ -28,6 +14,3 @@ env.sh
 # python
 __pycache__/
 *.pyc
-
-# keep folder READMEs tracked (instructions, not data)
-!**/README.md
