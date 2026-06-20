@@ -5,11 +5,11 @@ summary**, **waste detection** (duplicates, overlaps, price hikes, forgotten
 subs), **renewal tracking**, and **savings recommendations** — output as a
 markdown report and a self-contained HTML dashboard.
 
-It works with **any coding agent that can follow a `SKILL.md`** (Claude Code, or
-any agent you point at this skill). It pulls bank transactions via the **Plaid
-CLI**, enriches them with **Gmail receipts**, runs deterministic recurrence
-detection, and reconciles everything into a `subscriptions.yaml` ledger that each
-run updates rather than re-deriving.
+Works with **Claude Code, Cursor, Cline, OpenCode, and 68+ agents** via the open
+[`skills`](https://github.com/vercel-labs/skills) ecosystem. It pulls bank
+transactions via the **Plaid CLI**, enriches them with **Gmail receipts**, runs
+deterministic recurrence detection, and reconciles everything into a
+`subscriptions.yaml` ledger that each run updates rather than re-deriving.
 
 ```
 Plaid CLI ──► transactions ─┐
@@ -19,25 +19,29 @@ Gmail receipts ─────────────┘   (deterministic)     
 
 ## Install
 
-Clone the repo, then make it available to your agent:
+Add it to your agent with the [`skills`](https://github.com/vercel-labs/skills) CLI:
+
+```bash
+npx skills@latest add RowanJu/subs              # auto-detects your agent
+npx skills@latest add RowanJu/subs -a cursor    # or target one: claude-code, cursor, cline, …
+```
+
+<details>
+<summary><b>Manual install</b></summary>
 
 ```bash
 git clone git@github.com:RowanJu/subs.git
+ln -s "$(pwd)/subs" ~/.claude/skills/subs   # Claude Code
 ```
 
-- **Claude Code** — symlink it into your skills dir, then run `/subs`:
-  ```bash
-  ln -s "$(pwd)/subs" ~/.claude/skills/subs
-  ```
-- **Any other coding agent** — point it at this folder's `SKILL.md` (add the folder
-  to the agent's skills/rules, or just tell the agent to follow `SKILL.md`).
-  Throughout the skill, `<skill-dir>` refers to this cloned folder.
+For other agents, point them at the folder's `SKILL.md`. Throughout the skill,
+`<skill-dir>` is wherever it's installed.
+</details>
 
 ## Prerequisites
 
-- A **coding agent** (Claude Code, or any agent that follows `SKILL.md`).
-- A **Gmail connector/MCP** available to the agent (e.g. Claude Code's Gmail
-  connector) — for receipts.
+- A **coding agent** (Claude Code, Cursor, Cline, OpenCode, …).
+- A **Gmail connector/MCP** available to the agent — for receipts.
 - **Plaid CLI** — `brew install plaid/plaid-cli/plaid`, then `plaid login` + `plaid link`.
 - **jq** — `brew install jq` (ships on most macs).
 
@@ -45,9 +49,9 @@ git clone git@github.com:RowanJu/subs.git
 
 1. `plaid login` + `plaid link` (once per bank).
 2. Invoke the skill from any folder you want as your data workspace — in Claude
-   Code, `/subs`; in other agents, ask it to run the subs skill / follow `SKILL.md`.
-   It pulls bank data + Gmail receipts, builds `subscriptions.yaml`, and writes a
-   dated report to `reports/`.
+   Code, `/subs`; in other agents, ask it to run the **subs** skill. It pulls bank
+   data + Gmail receipts, builds `subscriptions.yaml`, and writes a dated report to
+   `reports/`.
 3. Re-run anytime — it reconciles new data instead of starting over.
 
 ## Structure
