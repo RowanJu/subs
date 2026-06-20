@@ -2,22 +2,8 @@
 
 Receipts complement bank CSVs: they catch annual subscriptions a short statement
 misses, reveal what a vague bank descriptor actually paid for, and give exact
-renewal dates and plan tiers.
-
-## Prerequisite: a Gmail connector
-
-This skill uses a **Gmail connector/MCP** available to your coding agent (e.g.
-Claude Code's Gmail connector) as the primary receipt source. Before searching,
-confirm your agent has Gmail search/read tools — a `search_threads` / `get_thread`
-pair (or equivalent) from a Gmail MCP.
-
-**If no Gmail integration is available, stop and tell the user:**
-> No Gmail connector is available. Enable a Gmail connector/MCP for your agent
-> (in Claude Code: Connectors → Gmail), then re-run the skill.
-
-Do not silently fall back to file-only — Gmail is a prerequisite for full receipt
-coverage. (Dropped `.eml`/`.txt` files in `data/receipts/` are still read if
-present, as a supplement.)
+renewal dates and plan tiers. Receipts are the primary source; dropped
+`.eml`/`.txt` files in `data/receipts/` are a supplement.
 
 ## Pulling receipts from Gmail
 

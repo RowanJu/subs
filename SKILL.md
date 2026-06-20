@@ -1,6 +1,6 @@
 ---
 name: subs
-description: Analyze SaaS subscription spending from bank CSVs and receipts — spend summary, waste detection, renewal tracking, savings recommendations.
+description: Analyze SaaS subscription spending from your bank (Plaid CLI) and Gmail receipts — spend summary, waste detection, renewal tracking, savings recommendations.
 disable-model-invocation: true
 ---
 
@@ -16,7 +16,7 @@ recommend savings.
 *reconciles* fresh data into it — it never re-derives everything from scratch.
 This is what makes renewal tracking and run-to-run consistency real, and it makes
 "waste" computable (a sub charged for months then suddenly absent = lapsed or
-worth cancelling). Never overwrite the ledger wholesale; merge into it.
+worth cancelling). Never overwrite the ledger wholesale; reconcile into it.
 
 **Ledger entry schema** (one entry per subscription):
 
@@ -53,23 +53,19 @@ Use the current working directory as the workspace. Ensure `data/statements/`,
 **Done when:** the workspace dirs exist and the ledger is loaded (possibly empty).
 If `data/statements/` is empty AND no `subscriptions.yaml` exists yet AND the user
 isn't using Plaid (next section), tell the user to drop their bank/card CSV exports
-into `data/statements/` and stop — the CSVs are the spine of recurrence detection;
-Gmail receipts enrich them.
+into `data/statements/` and stop — the CSVs are the spine of recurrence detection.
 
 ### 1. Gather inputs
-**Bank data via the Plaid CLI** (preferred — no manual CSV export). If the user
-wants automatic bank data, ensure the `plaid` CLI is ready and pull transactions
-into a CSV the detector reads, per [plaid.md](references/plaid.md): install it if
-missing (`brew install plaid/plaid-cli/plaid`), ensure `plaid login` + `plaid
-link` have been done, then `plaid transactions list --all --json …` → convert to
-`data/statements/plaid-transactions.csv`. Otherwise rely on CSVs the user dropped
-into `data/statements/`.
+**Bank data via the Plaid CLI** (preferred — no manual CSV export): ensure the CLI
+is ready and pull transactions into `data/statements/plaid-transactions.csv` per
+[plaid.md](references/plaid.md). Otherwise rely on CSVs the user dropped into
+`data/statements/`.
 
 Then list every CSV in `data/statements/`. Pull subscription receipts from
 **Gmail** per [email-receipts.md](references/email-receipts.md), and also read any
 supplementary `.eml`/`.txt` files in `data/receipts/`.
-**Done when:** every statement file is listed and the Gmail receipt search has
-run (or the connector-missing message was shown and the run stopped).
+**Done when:** every CSV in `data/statements/` is enumerated, and the Gmail receipt
+search has returned (or the run stopped on a missing connector).
 
 ### 2. Detect recurring charges
 Run the deterministic detector over every statement CSV (including the
@@ -80,9 +76,7 @@ directory (in Claude Code: `~/.claude/skills/subs/`):
 python3 <skill-dir>/scripts/detect_recurring.py data/statements/*.csv
 ```
 
-The detector emits JSON candidates (merchant, amount, currency, cadence,
-occurrences, first_seen, last_seen, amount_changed, confidence). For
-`low`-confidence candidates and merchant-normalization edge cases, consult
+For `low`-confidence candidates and merchant-normalization edge cases, consult
 [recurrence-detection.md](references/recurrence-detection.md). Combine these
 candidates with the Gmail receipts gathered in step 1 — receipts catch annual subs
 a short statement misses and identify vague descriptors.
@@ -90,21 +84,23 @@ a short statement misses and identify vague descriptors.
 last-seen date.
 
 ### 3. Reconcile into the ledger
-Merge candidates into `subscriptions.yaml`:
+Reconcile candidates into `subscriptions.yaml`:
 - **New** merchant → add an entry; categorize via [categories.md](references/categories.md).
 - **Existing** → refresh `last_seen` and `next_renewal`; if the amount rose, set
   `status: price_hike` and record the old amount in `notes`.
 - **In the ledger but absent from recent data** (no charge within ~1.5 cycles of
   today) → set `status: lapsed?`.
 
-**Done when:** every ledger entry has a status reflecting the latest data, and
-every candidate maps to exactly one ledger entry.
+**Done when:** every ledger entry's `status` is one of
+`active | price_hike | lapsed? | cancelled`, and every candidate maps to exactly
+one ledger entry.
 
 ### 4. Analyze
 From the reconciled ledger compute all four:
 - **(a) Spend summary** — monthly total and annualized total, grouped by category,
-  by vendor, and by billing cycle. Normalize every entry to a monthly figure
-  (annual ÷ 12, quarterly ÷ 3, weekly × 4.33) for comparison.
+  by vendor, and by billing cycle. Normalize every entry to a **monthly figure**
+  ($/mo): annual ÷ 12, semiannual ÷ 6, quarterly ÷ 3, monthly × 1, biweekly × 2.17,
+  weekly × 4.33, semimonthly × 2. The reports reuse this $/mo (single source of truth).
 - **(b) Waste** — duplicates (same service twice), overlapping tools (two products
   in the same category doing the same job), price hikes (`status: price_hike`),
   and lapsed/unused (`status: lapsed?`).
@@ -125,5 +121,5 @@ Save the ledger, then write **both** reports from it:
   [html-report.md](references/html-report.md), and open it (`open <path>`).
 
 Then present a concise summary in chat (headline totals + top 3 actions).
-**Done when:** both reports cover all four outputs and `subscriptions.yaml` is
-saved.
+**Done when:** both reports contain the spend summary, waste flags, upcoming
+renewals, and ranked recommendations, and `subscriptions.yaml` is saved.

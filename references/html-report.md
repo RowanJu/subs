@@ -5,24 +5,20 @@ offline) at `reports/<YYYY-MM-DD>-subscriptions.html`, then open it
 (`open <path>` on macOS). This is the visual companion to the markdown report;
 both are built from the ledger.
 
-## Computation rules (do these first, from the ledger)
+## Rendering rules
 
-- **$/mo per sub** — normalize each to monthly: annual ÷ 12, quarterly ÷ 3,
-  semiannual ÷ 6, weekly × 4.33, biweekly × 2.17, semimonthly × 2, monthly × 1.
-- **Monthly burn** = Σ $/mo over `status: active` SaaS subs (exclude cancelled and
-  non-SaaS). **Annualized** = monthly × 12.
-- **Category split** — sum $/mo by category; **%** = category ÷ monthly burn.
-- **AI share** — the AI category % (usually the headline).
-- **Donut** uses a CSS `conic-gradient` with **cumulative** percent stops, largest
-  category first (see template). Compute running totals, e.g. AI 0→89.66%,
-  +Media→95.10%, +Design→98.64%, +Wellness→100%.
-- **Bar width %** per sub = `$/mo ÷ (max $/mo) × 100` (largest sub = 100%).
-- **Insights** — fill Cancel / Duplicate-overlap / Downgrade-optimize from the
-  waste analysis (step 4): cancelled or unused → Cancel; same-job/same-category or
-  music/storage overlap → Duplicate; usage-based, oversized tier, or annual-cheaper
-  → Downgrade. Each line cites a vendor and an annual-$ figure.
-- **Non-SaaS recurring** — list the excluded bills (utilities, phone, loans,
-  insurance, rent) in the lower-right panel so the picture is complete.
+Reuse step 4's analysis — `$/mo` per sub, monthly burn, annualized, category $/mo
+and %, AI share, the waste flags, and the non-SaaS list. **Don't re-derive them**
+(SKILL.md step 4 owns the `$/mo` normalization — single source of truth). This
+section adds only the HTML-specific math:
+
+- **Donut** — CSS `conic-gradient` with **cumulative** percent stops, largest
+  category first, e.g. AI 0→89.66%, +Media→95.10%, +Design→98.64%, +Wellness→100%.
+- **Bar width %** per sub = `$/mo ÷ (max $/mo) × 100` (largest = 100%).
+- **Insight cards** — bucket step 4's waste/recommendations into **Cancel**
+  (cancelled/unused), **Duplicate** (same-job overlap), **Downgrade** (usage-based,
+  oversized tier, or annual-cheaper); each line cites a vendor + annual-$.
+- **Non-SaaS panel** — step 4's excluded bills (utilities, phone, loans, insurance, rent).
 
 ## Template
 
