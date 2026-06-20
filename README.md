@@ -52,3 +52,7 @@ This repo contains **only the skill** — no financial data. When you run `/subs
 your ledger, reports, and raw bank data are created in your working directory and
 are **gitignored** (`data/`, `reports/`, `subscriptions.yaml`); they never leave
 your machine. Verify with `git status` before pushing.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
